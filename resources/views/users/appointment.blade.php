@@ -2,7 +2,7 @@
     <h1>AAAAAAA</h1>
 <div id="calendar"></div>
 
-<button class="btn btn-primary"><a href="{{ route('user.request,$id') }}">Request</a></button>
+<button class="btn btn-primary"><a href="{{ route('user.createRequest',$id) }}">Request</a></button>
 @push('scripts')
         <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
         <script> 

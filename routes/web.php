@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\HallController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RequestController;
 use Illuminate\Support\Facades\Redis;
@@ -33,17 +34,19 @@ Route::middleware('auth')->group(function () {
 // Route::get('/', function () {
 //     return view('welcome');
 // });
-Route::get('/test/{id}', \App\Http\Controllers\AppointmentController::class); 
-Route::get('/request/{hall}',[\App\Http\Controllers\AppointmentController::class,'request'])->name('user.request'); 
+// Route::get('/request/{hall}',[\App\Http\Controllers\RequestController::class,'addRequest'])->name('user.request'); 
 
 
-Route::get('index', [AdminController::class, 'craete'])->name('admin.create');
-Route::post('index', [AdminController::class, 'store'])->name('admin.store');
+// Route::get('index', [AdminController::class, 'craete'])->name('admin.create');
+// Route::post('index', [AdminController::class, 'store'])->name('admin.store');
 
-Route::get('req', [RequestController::class, 'create'])->name('user.create');
-Route::post('req/{hall}', [RequestController::class, 'store'])->name('request.store');
-Route::get('rooms', [RequestController::class, 'rooms'])->name('request.rooms');
+Route::get('/appointment/{hall}', \App\Http\Controllers\AppointmentController::class)->name('appointment'); 
+
+Route::get('user/{hall}/createReq', [RequestController::class, 'create'])->name('user.createRequest');
+Route::post('user/{hall}/storeReq', [RequestController::class, 'store'])->name('user.storeRequest');
+Route::get('user/{user}/requests', [RequestController::class, 'showUserRequests'])->name('user.showUserRequests');
+Route::get('rooms', [RequestController::class, 'rooms'])->name('rooms');
 
 Route::resource('/hall',HallController::class);
-
+Route::get('showRequests',[HallController::class,'showRequests']);
 require __DIR__.'/auth.php';

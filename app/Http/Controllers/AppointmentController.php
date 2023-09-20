@@ -25,9 +25,9 @@ class AppointmentController extends Controller
             ];
         }
 
-        return view('users.appointment', compact('events,id'));
+        return view('users.appointment', compact('events','id'));
     }
-    public function request($id){
-        return view('users.request',compact('id')); // add request
-    }
+    // public function request($id){
+    //     return view('users.request',compact('id')); // add request
+    // }
 }

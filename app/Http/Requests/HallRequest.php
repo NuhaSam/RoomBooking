@@ -23,10 +23,11 @@ class HallRequest extends FormRequest
     {
         return [
             'name' => 'required |string',
-            'type' => 'required | in:room,work space',
+            'type' => 'required | in:room,workspace',
             'number_of_seats' => 'required | integer ',
-            'days_of_works' => 'required | string ',
             'location' => 'required | string',
+            'from_day' => 'required | string',
+            'to_day' => 'required | string',
         ];
     }
 }
