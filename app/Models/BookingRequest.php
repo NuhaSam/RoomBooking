@@ -10,7 +10,7 @@ class BookingRequest extends Model
     use HasFactory;
 
     protected $fillable =[
-        'start_time','end_time','comment','hall_id','user_id',
+        'start_time','end_time','comment','hall_id','user_id','status','reason','admin_id'
         // 'appointed_id','appointed_type',
     ];
 

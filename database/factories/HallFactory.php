@@ -18,7 +18,7 @@ class HallFactory extends Factory
     {
         return [
             'name' => 'ju',
-            'type' => 'work space',
+            'type' => 'workspace',
             'number_of_seats' => 22,
             'days_of_works' => 'Sun to Thu',
             'location' => 'Gaza',

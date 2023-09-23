@@ -86,9 +86,9 @@
                 <td>{{ $request->status }}</td>
                 <td>{{ $request->reason  ?? "__"}}</td>
                           <td>
-                    <form method="get" action="">
+                    <form method="get" action="{{ route('user.editRequest',[$request->hall,$request])}}">
                         @csrf
-                        <button type="submit" name="delete" class="btn btn-primary">Edit</button>
+                        <button type="submit" class="btn btn-primary">Edit</button>
                     </form>
                 </td>
                 <td>

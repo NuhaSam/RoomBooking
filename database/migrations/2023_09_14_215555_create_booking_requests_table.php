@@ -19,6 +19,7 @@ return new class extends Migration
             $table->dateTime('end_time');
             $table->enum('status',['submitted','approved','denied']);
             $table->string('reason')->nullable();        
+            $table->string('comment')->nullable();        
             $table->foreignId('admin_id')->nullable()->constrained()->nullOnDelete();
             $table->timestamps();
         });

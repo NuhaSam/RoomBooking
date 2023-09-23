@@ -10,7 +10,7 @@ class Appointment extends Model
     use HasFactory;
 
     protected $fillable =[
-        'appointed_id','appointed_type','hall_id','start_date','end_date','comments',
+        'appointed_id','appointed_type','hall_id','start_time','end_time','comments',
     ];
     public function appointed(){
         return $this->morphTo();

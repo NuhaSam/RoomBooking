@@ -96,8 +96,13 @@
 																		<!-- <td>Oct 24, 2020</td>
 																		<td>Nov 01, 2020</td> -->
 																		<td class="">
-																			<button class="btn btn-sm btn-light btn-active-light-primary">Accept</button>
-																			<button class="btn btn-sm btn-light btn-active-light-primary">Reject</button>
+																			<form method="post" action="{{ route('requestStatus',$request) }}">
+																				@csrf
+																				@method('put')
+																			<button name="status" value="approved" class="btn btn-sm btn-light btn-active-light-primary">Accept</button>
+																			<button name="status" value="denied" class="btn btn-sm btn-light btn-active-light-primary">Reject</button>
+																			<input type="text" name="reason" class="">	
+																		</form>
 																		</td>
 																	</tr>
 																	@endforeach
