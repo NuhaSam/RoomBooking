@@ -96,7 +96,7 @@
 																		<!-- <td>Oct 24, 2020</td>
 																		<td>Nov 01, 2020</td> -->
 																		<td class="">
-																			<form method="post" action="{{ route('requestStatus',$request) }}">
+																			<form method="post" action="{{ route('requestStatus',[$request]) }}">
 																				@csrf
 																				@method('put')
 																			<button name="status" value="approved" class="btn btn-sm btn-light btn-active-light-primary">Accept</button>

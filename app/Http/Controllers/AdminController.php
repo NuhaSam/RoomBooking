@@ -47,24 +47,27 @@ class AdminController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Admin $admin)
     {
-        //
+        return view('admins.edit',compact('admin'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(AdminRequest $request,Admin $admin)
     {
-        //
+        $request->validated();
+        $admin->update($request->all());
+        return redirect(route('admin.index'));
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Admin $admin)
     {
-        //
+        Admin::destroy($admin->id);
+        return redirect(route('admin.index'));
     }
 }

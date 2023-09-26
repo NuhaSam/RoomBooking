@@ -1,7 +1,7 @@
-<?php
-
+<?php 
 namespace App\Http\Controllers;
 
+use App\Events\NewRequest;
 use App\Models\Appointment;
 use App\Models\BookingRequest;
 use App\Models\Hall;
@@ -19,23 +19,40 @@ class RequestController extends Controller
     // }
     public function requestStatus(Request $request, BookingRequest $bookingRequest)
     {
-        // dd($bookingRequest,$request);
         if ($request->status === 'approved') {
-            $bookingRequest->update([
-                'status' => 'approved',
-                'admin_id' => Auth::id(),
-            ]);
-            Appointment::create([
-                'hall_id' => $bookingRequest->hall_id,
-                'appointed_id' => $bookingRequest->user_id,
-                'appointed_type' => 'App\Models\User',
-                'start_time' => $bookingRequest->start_time,
-                'end_time' => $bookingRequest->end_time,
-                'comment' => $bookingRequest->comment,
-            ]);
-            //  ******************************** //
-            // event('RequestAccepted');
-            //  ******************************** //
+            // التحقق من وجود تعارض بالأوقات
+            $conflictingBooking = BookingRequest::where('hall_id', $bookingRequest->hall_id)
+                ->where(function ($query) use ($bookingRequest) {
+                    $query->where(function ($q) use ($bookingRequest) {
+                        $q->where('start_time', '<', $bookingRequest->start_time)
+                          ->where('end_time', '>', $bookingRequest->start_time);
+                    })->orWhere(function ($q) use ($bookingRequest) {
+                        $q->where('start_time', '<', $bookingRequest->end_time)
+                          ->where('end_time', '>', $bookingRequest->end_time);
+                    })->orWhere(function ($q) use ($bookingRequest) {
+                        $q->where('start_time', '>=', $bookingRequest->start_time)
+                          ->where('end_time', '<=', $bookingRequest->end_time);
+                    });
+                })
+                ->where('status', 'approved') // تأكد من أن الحجز المتعارض مقبول
+                ->first();
+    
+            if ($conflictingBooking) {
+                return redirect()->back()->withErrors(['message' => ' Conflict with another reservation in the period from ' . $conflictingBooking->start_time . ' to ' . $conflictingBooking->end_time]);
+            } else {
+                $bookingRequest->update([
+                    'status' => 'approved',
+                    'admin_id' => Auth::id(),
+                ]);
+                Appointment::create([
+                    'hall_id' => $bookingRequest->hall_id,
+                    'appointed_id' => $bookingRequest->user_id,
+                    'appointed_type' => 'App\Models\User',
+                    'start_time' => $bookingRequest->start_time,
+                    'end_time' => $bookingRequest->end_time,
+                    'comment' => $bookingRequest->comment,
+                ]);
+            }
         } else {
             $bookingRequest->update([
                 'status' => 'denied',
@@ -45,32 +62,66 @@ class RequestController extends Controller
         }
         return redirect(route('showRequests'));
     }
+
     public function create(Hall $hall)
     {
+        
         return view('users.makeRequest', compact('hall'));
     }
     public function store(Request $request, $id)
-    {
-        // dd('request');
-        $request->validate([
-            'start_time' => 'required',
-            'end_time' => 'required',
-            'comment' => 'nullable',
-        ]);
+{
+    $request->validate([
+        'start_time' => 'required',
+        'end_time' => 'required',
+        'comment' => 'nullable',
+    ]);
+   
 
-        $bookingRequest = new BookingRequest();
-        $bookingRequest->user_id = Auth::id();
-        $bookingRequest->hall_id = $id;
-        $bookingRequest->start_time = $request->start_time;
-        $bookingRequest->end_time = $request->end_time;
-        $bookingRequest->status = 'submitted';
-        $bookingRequest->created_at = now();
-        $bookingRequest->updated_at = now();
+    $start_time = $request->start_time;
+    $end_time = $request->end_time;
 
-        $bookingRequest->save();
-        // BookingRequest::create($request->all());
-        return redirect(route('user.showUserRequests',Auth::id()));
-    }
+    
+    $conflictingBooking = BookingRequest::where('hall_id', $id)
+    ->where('status', 'approved') 
+        ->where(function ($query) use ($start_time, $end_time) {
+            $query->where(function ($q) use ($start_time, $end_time) {
+                $q->where('start_time', '<', $start_time)
+                  ->where('end_time', '>', $start_time);
+            })->orWhere(function ($q) use ($start_time, $end_time) {
+                $q->where('start_time', '<', $end_time)
+                  ->where('end_time', '>', $end_time);
+            })->orWhere(function ($q) use ($start_time, $end_time) {
+                $q->where('start_time', '>=', $start_time)
+                  ->where('end_time', '<=', $end_time);
+            });
+        })
+        ->first();
+        $count = BookingRequest::where('start_time', '<', $end_time)
+        ->where('end_time', '>', $start_time)
+        ->count();
+
+if ($count >= Hall::find($id)->number_of_seats) {
+return redirect()->back()->withErrors(['message' => 'Conflict with another reservation in the specified time period.']);
+}
+
+
+    // إذا لم يكن هناك تعارض، قم بإنشاء الحجز الجديد
+    $bookingRequest = new BookingRequest();
+    $bookingRequest->user_id = Auth::id();
+    $bookingRequest->hall_id = $id;
+    $bookingRequest->start_time = $start_time;
+    $bookingRequest->end_time = $end_time;  
+    $bookingRequest->status = 'submitted';
+    $bookingRequest->created_at = now();
+    $bookingRequest->updated_at = now();
+
+    $bookingRequest->save();
+    event(new NewRequest($bookingRequest));
+    return redirect(route('user.showUserRequests', Auth::id()));
+}
+
+
+
     public function showUserRequests(User $user)
     {
         $bookingRequests = BookingRequest::with('hall')->where('user_id', $user->id)->get();
@@ -83,17 +134,15 @@ class RequestController extends Controller
     }
     public function update(Request $request,$hall,$bookingRequest)
     {
-        // dd($bookingRequest);
         $bookingRequest = BookingRequest::find((intval($bookingRequest)));
-        // dd($bookingRequest);
         $bookingRequest->update($request->all());
         return redirect(route('user.showUserRequests',Auth::id()));
-
     }
-    public function delete(BookingRequest $bookingRequest)
+    public function delete($bookingRequest)
     {
-        $bookingRequest->delete();
-        return redirect(route('users.showUserRequests', Auth::id()));
+        $bookingRequest = BookingRequest::find((intval($bookingRequest)));
+        BookingRequest::destroy($bookingRequest->id);
+        return redirect(route('user.showUserRequests', Auth::id()));
     }
 
     public function rooms()

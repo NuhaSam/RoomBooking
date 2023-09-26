@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class HallRequest extends FormRequest
 {
@@ -22,12 +23,13 @@ class HallRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required |string',
+            'name' => ['required ','string' , Rule::unique('halls','name')],
             'type' => 'required | in:room,workspace',
             'number_of_seats' => 'required | integer ',
             'location' => 'required | string',
             'from_day' => 'required | string',
             'to_day' => 'required | string',
+
         ];
     }
 }

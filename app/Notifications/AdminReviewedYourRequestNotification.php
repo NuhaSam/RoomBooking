@@ -2,7 +2,6 @@
 
 namespace App\Notifications;
 
-use App\Models\Admin;
 use App\Models\BookingRequest;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -10,7 +9,7 @@ use Illuminate\Notifications\Messages\DatabaseMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class NewRequestNotification extends Notification
+class AdminReviewedYourRequestNotification extends Notification
 {
     use Queueable;
 
@@ -27,7 +26,7 @@ class NewRequestNotification extends Notification
      *
      * @return array<int, string>
      */
-    public function via(Admin $notifiable): array
+    public function via(object $notifiable): array
     {
         return ['mail','database'];
     }
@@ -38,22 +37,22 @@ class NewRequestNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-                    ->line('Hello ' . $notifiable->name)
-                    ->line('There are new Requests')
-                    ->action('Show Requests ', url(route('showRequests')))
-                    ->line('Thank you!');
+        ->subject('Admin Reviewed Your Request')
+        ->line('Hi ' . $notifiable->first_name)
+        ->line('Admin Reviewed Your Request')
+                    ->action('Your Requests', url(route('user.showUserRequests',$notifiable)))
+                    ->line('Good Luck!');
     }
     /**
-     * Get the Database representation of the notification.
+     * Get the mail representation of the notification.
      */
-    public function toDatabase(object $notifiable): DatabaseMessage
+    public function toDatabade(object $notifiable): DatabaseMessage
     {
         return new DatabaseMessage([
-            'title' => __('New Request'),
-            'user' => $this->bookingRequest->user,
+            'admin_id' => $this->bookingRequest->admin_id,
+            'request_id' => $this->bookingRequest->id,
             'hall' => $this->bookingRequest->hall,
         ]);
-                
     }
 
     /**

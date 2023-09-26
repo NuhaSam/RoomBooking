@@ -27,7 +27,7 @@ class FortifyServiceProvider extends ServiceProvider
     public function register(): void
     {
         if (request()->is('admin/', 'admin/*')) {
-            // dd('ssaasas','admin');
+            // dd('admin');
             Config::set([
                 'fortify.guard' => 'admin',
                 'fortify.prefix' => 'admin',
@@ -50,29 +50,7 @@ class FortifyServiceProvider extends ServiceProvider
             }
         });
 
-        //     if(request()->is('admin','admin/*') ){
-        //         Config::set([
-        //             'fortify.guard' => 'admin',
-        //             'fortify.prefix' => 'admin',
-        //             // 'fortify.passwords' => 'admins',
-        //             'fortify.username' => 'username',
-        //         ]);
-        //     }
-
-        //     $this->app->singleton(LoginResponse::class,function(){
-        //         dd('ssdd');
-        //         return new class implements LoginResponse{
-        //             public function toResponse($request){
-        //                 $user = $request::guard('admin')->user();
-        //                 dd($user);
-        //                 if($user instanceof Admin){
-        //                     return redirect(route('hall.index'));
-        //                 }
-        //                 return redirect()->intended(route('rooms'));
-
-        //             }
-        //         };
-        //     });
+    
     }
 
     /**

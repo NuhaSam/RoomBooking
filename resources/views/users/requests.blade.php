@@ -79,12 +79,12 @@
             
         @foreach($bookingRequests as $request)
             <tr>
-                <th scope="row">{{ $request->user_id}}</th>
+                <th scope="row">{{ $request->id}}</th>
                 <td>{{ $request->hall->name }}</td>
                 <td>{{ $request->start_time }}</td>
                 <td>{{ $request->end_time }}</td>
                 <td>{{ $request->status }}</td>
-                <td>{{ $request->reason  ?? "__"}}</td>
+                <td>{{ $request->reason  ?? "___"}}</td>
                           <td>
                     <form method="get" action="{{ route('user.editRequest',[$request->hall,$request])}}">
                         @csrf
@@ -92,7 +92,7 @@
                     </form>
                 </td>
                 <td>
-                    <form method="post" action="">
+                    <form method="post" action="{{route('user.deleteRequest',[$request->id,$request->hall->id])}}">
                         @csrf
                         @method('delete')
                         <button type="submit" name="delete" class="btn btn-danger">Delete</button>

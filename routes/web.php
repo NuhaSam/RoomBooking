@@ -29,25 +29,30 @@ Route::middleware('auth:web,admin')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
-    Route::get('/appointment/{hall}', \App\Http\Controllers\AppointmentController::class)->name('appointment');
 });
 
-Route::middleware('auth:web')->group(function () {
+Route::get('/appointment/{hall}', \App\Http\Controllers\AppointmentController::class)->name('appointment');
+Route::middleware('auth:web,admin')->group(function () {
+
     Route::get('user/{hall}/createReq', [RequestController::class, 'create'])->name('user.createRequest');
     Route::post('user/{hall}/storeReq', [RequestController::class, 'store'])->name('user.storeRequest');
-   
+
     Route::get('user/{hall}/editReq/{bookingRequest}', [RequestController::class, 'edit'])->name('user.editRequest');
     Route::put('user/{hall}/updateReq/{bookingRequest}/', [RequestController::class, 'update'])->name('user.updateRequest');
-    
+    Route::delete('user/{hall}/deleteReq/{bookingRequest}/', [RequestController::class, 'delete'])->name('user.deleteRequest');
+
     Route::get('user/{user}/requests', [RequestController::class, 'showUserRequests'])->name('user.showUserRequests');
     Route::get('rooms', [RequestController::class, 'rooms'])->name('rooms');
+    // Route::get('/halls/search', [HallController::class, 'search'])->name('halls.search');
 });
 
+Route::middleware('auth:admin,web')->group(function () {
+    Route::get('/halls/search', [HallController::class, 'search'])->name('halls.search');
+});
 Route::middleware('auth:admin')->group(function () {
-    Route::resource('/hall', HallController::class);
-    Route::get('/showRequests', [HallController::class, 'showRequests'])->name('showRequests');
-    Route::put('/showRequests/{bookingRequest}', [RequestController::class, 'requestStatus'])->name('requestStatus');
+    Route::resource('/admin/hall', HallController::class);
+    Route::get('/admin/showRequests', [HallController::class, 'showRequests'])->name('showRequests');
+    Route::put('/admin/showRequests/{bookingRequest}/', [RequestController::class, 'requestStatus'])->name('requestStatus');
 });
 
 //require __DIR__.'/auth.php';

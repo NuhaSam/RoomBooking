@@ -3,17 +3,29 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\HallRequest;
+use App\Models\Admin;
 use App\Models\BookingRequest;
 use App\Models\Hall;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class HallController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-       $halls =  Hall::paginate(2);
-       return view('admins.spaces',compact('halls'));
+       $halls =  Hall::paginate(3);
+    //    $halls = Hall::where('name', 'like', '%' . $request->input('keyword') . '%')->paginate();
+
+    //    return view('admins.spaces',compact('halls'));
+    //     $user = Auth::user();
+    //     if($user instanceof Admin){
+    //         $user = 'admin';
+    //     }
+    //     else{
+    //         $user = 'user';
+    //     }
+       return view('users.rooms',compact('halls'));
     }
     public function create()
     {
@@ -34,10 +46,8 @@ class HallController extends Controller
     public function edit(Hall $hall)
     {
             $days = explode(' ',$hall->days_of_works);
-        // dd($days);
         $from_day = $days[0];
         $to_day = $days[2] ?? "";
-        // dd($from_day );
         return view('halls.edit',compact('hall','from_day','to_day'));
     }
     public function update(HallRequest $request,Hall $hall)
@@ -58,5 +68,11 @@ class HallController extends Controller
     public function showRequests(){
         $bookingRequests = BookingRequest::with('hall','user')->where('status', 'submitted')->get();
         return view('admins.showRequests',compact('bookingRequests'));
+    }
+    public function search(Request $request)
+    {
+        $halls = Hall::where('name', 'like', '%' . $request->input('keyword') . '%')->paginate();
+
+        return view('users.rooms', compact('halls'));
     }
 }
